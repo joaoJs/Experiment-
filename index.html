@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+    <title>João Campos</title>
+  </head>
+  <body>
+    <script language="javascript" type="text/javascript" src="p5.js"></script>
+    <script language="javascript" type="text/javascript" src="p5.dom.js"></script>
+    <script language="javascript" type="text/javascript" src="p5.sound.js"></script>
+    <script src="js/three.min.js"></script>
+    <script> src="js/jay.js"</script>
+    <script>
+    var scene = new THREE.Scene();
+      // attributes are:
+      //  -- > fields of view (FOV). Value given in degrees.
+      //  -- > ratio
+      //  -- > near clipping plane
+      //  -- > far clipping plane
+      var camera = new THREE.PerspectiveCamera( 150, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+      // a <canvas> element renderer uses to display the scene
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+
+      var directionalLight = new THREE.DirectionalLight( 'rgb(50,25,150)', 2 );
+      scene.add( directionalLight );
+
+      var light = new THREE.PointLight( 'rgb(200,100,50)', 8, 1000 );
+      light.position.set( 100, -50 , 50 );
+      scene.add( light );
+      scene.add(new THREE.PointLightHelper(light, 3));
+
+      renderer.setClearColor( 'rgb(30,15,90)' );
+
+      // code to make object, will need its own file
+
+      class Obj {
+        constructor(i, positions) {
+          this.positions = positions;
+          this.i = this.positions[i];
+          this.s = 0;
+          this.dir = this.i.dir;
+          console.log(this.i);
+          this.pmin = this.i.pmin;
+          this.pmax = this.i.pmax;
+          this.shape = {};
+        }
+
+        setShape() {
+          var color = randColor();
+          var geometry = new THREE.BoxGeometry( 3, 3, 0.5 );
+          var material = new THREE.MeshPhongMaterial( { color: color, metalness: 1 } );
+          var cube = new THREE.Mesh( geometry, material );
+          cube.position.x = this.i['x'];
+          cube.position.y = this.i['y'];
+          cube.position.z = 0;
+          this.shape = cube;
+        }
+
+
+      }
+
+      // code to make J, will need its own file
+
+      var jLineMaterial = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+      var jup = new THREE.Geometry();
+      jup.vertices.push(new THREE.Vector3( -30, 10, 0) );
+      jup.vertices.push(new THREE.Vector3( -20, 10, 0) );
+
+
+      var jupLine = new THREE.LineSegments( jup, jLineMaterial );
+      scene.add( jupLine );
+
+      var jmid = new THREE.Geometry();
+      jmid.vertices.push(new THREE.Vector3( -25, 10, 0) );
+      jmid.vertices.push(new THREE.Vector3( -25, -10, 0) );
+
+      var jmidLine = new THREE.LineSegments( jmid, jLineMaterial );
+      scene.add( jmidLine );
+
+      var jdown = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( -30, -10, 0) );
+      jdown.vertices.push(new THREE.Vector3( -25, -10, 0) );
+
+      var jdownLine = new THREE.LineSegments( jdown, jLineMaterial );
+      scene.add( jdownLine );
+
+      // J cubes
+
+      var jPositions = [
+        {x: -25, y: 10, z: 0, pmin: -30, pmax: -20, dir: 'hor'},
+        {x: -25, y: 10, z: 0, pmin: -10, pmax: 10, dir: 'ver'},
+        {x: -25, y: -10, z: 0, pmin: -30, pmax: -25, dir: 'hor'}
+      ]
+
+
+      var jCubes = [];
+
+      for (let i = 0; i < 3; i++) {
+        const c = new Obj(i, jPositions);
+        c.setShape();
+        jCubes.push(c);
+        scene.add(c.shape);
+      }
+
+
+      // code for O
+
+      var oLineMaterial = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+      var oup = new THREE.Geometry();
+      jup.vertices.push(new THREE.Vector3( -15, 10, 0) );
+      jup.vertices.push(new THREE.Vector3( -5, 10, 0) );
+
+
+      var oupLine = new THREE.LineSegments( oup, oLineMaterial );
+      scene.add( oupLine );
+
+      var oleft = new THREE.Geometry();
+      jmid.vertices.push(new THREE.Vector3( -15, 10, 0) );
+      jmid.vertices.push(new THREE.Vector3( -15, -10, 0) );
+
+      var oleftLine = new THREE.LineSegments( oleft, oLineMaterial );
+      scene.add( oleftLine );
+
+      var odown = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( -15, -10, 0) );
+      jdown.vertices.push(new THREE.Vector3( -5, -10, 0) );
+
+      var odownLine = new THREE.LineSegments( odown, oLineMaterial );
+      scene.add( odownLine );
+
+      var oright = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( -5, -10, 0) );
+      jdown.vertices.push(new THREE.Vector3( -5, 10, 0) );
+
+      var orightLine = new THREE.LineSegments( oright, oLineMaterial );
+      scene.add( orightLine );
+
+      // 1st O Cubes
+
+      var oPositions = [
+        {x: -15, y: 10, z: 0, pmin: -15, pmax: -5, dir: 'hor'},
+        {x: -15, y: 10, z: 0, pmin: -10, pmax: 10, dir: 'ver'},
+        {x: -5, y: -10, z: 0, pmin: -15, pmax: -5, dir: 'hor'},
+        {x: -5, y: -10, z: 0, pmin: -10, pmax: 10, dir: 'ver'}
+      ]
+
+
+      var oCubes = [];
+
+      for (let i = 0; i < 4; i++) {
+        const c = new Obj(i, oPositions);
+        c.setShape();
+        oCubes.push(c);
+        scene.add(c.shape);
+      }
+
+      // Code for A
+
+      var aLineMaterial = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+      var aup = new THREE.Geometry();
+      jup.vertices.push(new THREE.Vector3( 0, 10, 0) );
+      jup.vertices.push(new THREE.Vector3( 10, 10, 0) );
+
+
+      var aupLine = new THREE.LineSegments( aup, aLineMaterial );
+      scene.add( aupLine );
+
+      var aleft = new THREE.Geometry();
+      jmid.vertices.push(new THREE.Vector3( 0, 10, 0) );
+      jmid.vertices.push(new THREE.Vector3( 0, -10, 0) );
+
+      var aleftLine = new THREE.LineSegments( aleft, aLineMaterial );
+      scene.add( aleftLine );
+
+      var amid = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( 0, 0, 0) );
+      jdown.vertices.push(new THREE.Vector3( 10, 0, 0) );
+
+      var amidLine = new THREE.LineSegments( amid, aLineMaterial );
+      scene.add( amidLine );
+
+      var aright = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( 10, -10, 0) );
+      jdown.vertices.push(new THREE.Vector3( 10, 10, 0) );
+
+      var arightLine = new THREE.LineSegments( aright, aLineMaterial );
+      scene.add( arightLine );
+
+      // code for A cubes
+
+      var aPositions = [
+        {x: 0, y: 10, z: 0, pmin: 0, pmax: 10, dir: 'hor'},
+        {x: 0, y: 10, z: 0, pmin: -10, pmax: 10, dir: 'ver'},
+        {x: 5, y: 0, z: 0, pmin: 0, pmax: 10, dir: 'hor'},
+        {x: 10, y: -10, z: 0, pmin: -10, pmax: 10, dir: 'ver'}
+      ]
+
+
+      var aCubes = [];
+
+      for (let i = 0; i < 4; i++) {
+        const c = new Obj(i, aPositions);
+        c.setShape();
+        aCubes.push(c);
+        scene.add(c.shape);
+      }
+
+
+      // code for second O
+
+      var o2LineMaterial = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+      var o2up = new THREE.Geometry();
+      jup.vertices.push(new THREE.Vector3( 15, 10, 0) );
+      jup.vertices.push(new THREE.Vector3( 25, 10, 0) );
+
+
+      var o2upLine = new THREE.LineSegments( o2up, o2LineMaterial );
+      scene.add( o2upLine );
+
+      var o2left = new THREE.Geometry();
+      jmid.vertices.push(new THREE.Vector3( 15, 10, 0) );
+      jmid.vertices.push(new THREE.Vector3( 15, -10, 0) );
+
+      var o2leftLine = new THREE.LineSegments( o2left, o2LineMaterial );
+      scene.add( o2leftLine );
+
+      var o2down = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( 15, -10, 0) );
+      jdown.vertices.push(new THREE.Vector3( 25, -10, 0) );
+
+      var o2downLine = new THREE.LineSegments( o2down, o2LineMaterial );
+      scene.add( o2downLine );
+
+      var o2right = new THREE.Geometry();
+      jdown.vertices.push(new THREE.Vector3( 25, -10, 0) );
+      jdown.vertices.push(new THREE.Vector3( 25, 10, 0) );
+
+      var o2rightLine = new THREE.LineSegments( o2right, o2LineMaterial );
+      scene.add( o2rightLine );
+
+      // code for 2nd O Cubes
+
+      var o2Positions = [
+        {x: 15, y: 10, z: 0, pmin: 15, pmax: 25, dir: 'hor'},
+        {x: 15, y: 10, z: 0, pmin: -10, pmax: 10, dir: 'ver'},
+        {x: 25, y: -10, z: 0, pmin: 15, pmax: 25, dir: 'hor'},
+        {x: 25, y: -10, z: 0, pmin: -10, pmax: 10, dir: 'ver'}
+      ]
+
+
+      var o2Cubes = [];
+
+      for (let i = 0; i < 4; i++) {
+        const c = new Obj(i, o2Positions);
+        c.setShape();
+        o2Cubes.push(c);
+        scene.add(c.shape);
+      }
+
+
+      // code to add Tilde
+
+      var tLineMaterial = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+      var tilde = new THREE.Geometry();
+      jup.vertices.push(new THREE.Vector3( 0, 15, 0) );
+      jup.vertices.push(new THREE.Vector3( 10, 15, 0) );
+
+      var tLine = new THREE.LineSegments( tilde, tLineMaterial );
+      scene.add( tLine );
+
+      // code for the tilde Cube
+
+      var tPositions = [
+        {x: 10, y: 15, z: 0, pmin: 0, pmax: 10, dir: 'hor'}
+      ]
+
+      var tCubes = [];
+
+      for (let i = 0; i < 1; i++) {
+        const c = new Obj(i, tPositions);
+        c.setShape();
+        tCubes.push(c);
+        scene.add(c.shape);
+      }
+
+
+      function randColor() {
+        return '#' + Math.floor(Math.random()*16777215).toString(16);
+      }
+
+
+      camera.position.z = 5;
+
+
+      var mic;
+      //var micLevel;
+      // function setup(){
+      mic = new p5.AudioIn();
+      mic.start();
+
+      // render the scene every 60 seconds.
+      // using requestAnimationFrame instead of a setInterval because of the advantages
+      // of doing so. F0r example, the animation stops when the user navigates to
+      // another browser <tab className=""></tab>
+      function animate() {
+        requestAnimationFrame( animate );
+        var l = Math.floor(mic.getLevel() * 1000);
+        console.log("L ---> " + l);
+        light.intensity = l / 2;
+        if (l > 20) {
+          console.log("LIGHT ---> ")
+          console.log(light.intensity);
+          light.intensity = 20;
+          tilde.color = {r: 1, g: 1, b: 1};
+        }
+        renderer.render( scene, camera );
+        jCubes.forEach(cube => {
+          moveCube(cube);
+        });
+        oCubes.forEach(cube => {
+          moveCube(cube);
+        });
+        aCubes.forEach(cube => {
+          moveCube(cube);
+        });
+        o2Cubes.forEach(cube => {
+          moveCube(cube);
+        });
+        tCubes.forEach(cube => {
+          moveCube(cube);
+          //console.log(cube);
+          //cube.shape.rotation.y = Math.PI / 2;
+        });
+      }
+
+
+      // var sx = 0
+      // var sy = 0
+      function moveCube(c) {
+
+          if (c.dir == 'hor') {
+            if (c.shape.position.x >= c.pmax) {
+                c.s = 1;
+            }
+            else if (c.shape.position.x <= c.pmin) {
+                c.s = 0
+            }
+            if (c.s == 1) {
+              c.shape.position.x -= 0.1;
+            } else if (c.s == 0) {
+              c.shape.position.x += 0.1;
+            }
+          } else {
+            if (c.shape.position.y >= c.pmax) {
+                c.s = 1;
+            }
+            else if (c.shape.position.y <= c.pmin) {
+                c.s = 0
+            }
+            if (c.s == 1) {
+              c.shape.position.y -= 0.1;
+            } else if (c.s == 0){
+              c.shape.position.y += 0.1;
+            }
+          }
+      }
+
+      window.addEventListener( 'resize', onWindowResize, false );
+
+      animate();
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+      }
+
+
+    </script>
+
+  </body>
+</html>
